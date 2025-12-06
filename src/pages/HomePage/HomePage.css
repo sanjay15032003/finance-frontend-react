@@ -1,0 +1,140 @@
+.home-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.home-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: #1e1e2e;
+  border-bottom: 1px solid #313244;
+}
+
+.home-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #89b4fa;
+}
+
+.logout-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #f38ba8;
+  border-radius: 6px;
+  background: transparent;
+  color: #f38ba8;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.logout-btn:hover {
+  background: #f38ba8;
+  color: #1e1e2e;
+}
+
+.home-main {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.card {
+  background: #1e1e2e;
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.card-label {
+  font-size: 0.875rem;
+  color: #a6adc8;
+}
+
+.card-value {
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.card.income {
+  border-left: 4px solid #a6e3a1;
+}
+
+.card.income .card-value {
+  color: #a6e3a1;
+}
+
+.card.expense {
+  border-left: 4px solid #f38ba8;
+}
+
+.card.expense .card-value {
+  color: #f38ba8;
+}
+
+.card.balance {
+  border-left: 4px solid #89b4fa;
+}
+
+.card.balance .card-value {
+  color: #89b4fa;
+}
+
+.transactions {
+  background: #1e1e2e;
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.transactions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.transactions-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #cdd6f4;
+}
+
+.add-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: #89b4fa;
+  color: #1e1e2e;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.add-btn:hover {
+  background: #74c7ec;
+}
+
+.transactions-list {
+  min-height: 200px;
+}
+
+.empty-state {
+  text-align: center;
+  color: #6c7086;
+  padding: 3rem 1rem;
+}
+
