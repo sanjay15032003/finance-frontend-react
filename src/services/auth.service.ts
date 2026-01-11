@@ -2,16 +2,16 @@ import { apiRequest } from './api'
 import type { AuthResponse, SignUpPayload, SignInPayload } from '../types/api.types'
 
 export const authService = {
-  signUp: (payload: SignUpPayload) => 
+  signUp: (payload: SignUpPayload) =>
     apiRequest<AuthResponse>('/auth/signup', {
       method: 'POST',
-      body: JSON.stringify(payload),
+      data: payload,
     }),
 
   signIn: (payload: SignInPayload) =>
     apiRequest<AuthResponse>('/auth/signin', {
       method: 'POST',
-      body: JSON.stringify(payload),
+      data: payload,
     }),
 
   getToken: () => localStorage.getItem('token'),
