@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '../../components/Toast'
 import { TransactionModal } from '../../components/TransactionModal'
-import { transactionService } from '../../services/transaction.service'
-import type { Transaction, TransactionSummary } from '../../services/transaction.service'
+import { useGetTransactionsQuery, useGetTransactionSummaryQuery, useDeleteTransactionMutation } from '../../store/api/transactionsApi'
 import './HomePage.css'
 
 export const HomePage = () => {
@@ -12,33 +11,12 @@ export const HomePage = () => {
   const navigate = useNavigate()
   const { showToast } = useToast()
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [transactions, setTransactions] = useState<Transaction[]>([])
-  const [summary, setSummary] = useState<TransactionSummary>({
-    totalIncome: 0,
-    totalExpense: 0,
-    balance: 0,
-  })
-  const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    loadData()
-  }, [])
+  const { data: transactions = [], isLoading: transactionsLoading } = useGetTransactionsQuery()
+  const { data: summary = { totalIncome: 0, totalExpense: 0, balance: 0 }, isLoading: summaryLoading } = useGetTransactionSummaryQuery()
+  const [deleteTransaction] = useDeleteTransactionMutation()
 
-  const loadData = async () => {
-    try {
-      setLoading(true)
-      const [transactionsData, summaryData] = await Promise.all([
-        transactionService.getAll(),
-        transactionService.getSummary(),
-      ])
-      setTransactions(transactionsData)
-      setSummary(summaryData)
-    } catch (error) {
-      showToast(error instanceof Error ? error.message : 'Failed to load data', 'error')
-    } finally {
-      setLoading(false)
-    }
-  }
+  const loading = transactionsLoading || summaryLoading
 
   const handleLogout = () => {
     logout()
@@ -51,11 +29,10 @@ export const HomePage = () => {
     }
 
     try {
-      await transactionService.delete(id)
+      await deleteTransaction(id).unwrap()
       showToast('Transaction deleted successfully', 'success')
-      loadData()
-    } catch (error) {
-      showToast(error instanceof Error ? error.message : 'Failed to delete transaction', 'error')
+    } catch (error: any) {
+      showToast(error || 'Failed to delete transaction', 'error')
     }
   }
 
@@ -147,7 +124,6 @@ export const HomePage = () => {
       <TransactionModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSuccess={loadData}
       />
     </div>
   )

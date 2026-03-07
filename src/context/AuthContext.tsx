@@ -1,5 +1,7 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { authService } from '../services/auth.service'
+import { createContext, useContext } from 'react'
+import type { ReactNode } from 'react'
+import { useAppDispatch, useAppSelector } from '../store/hooks'
+import { setCredentials, logout as logoutAction, selectIsAuthenticated } from '../store/slices/authSlice'
 
 interface AuthContextType {
   isAuthenticated: boolean
@@ -16,20 +18,15 @@ export const useAuth = () => {
 }
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(authService.isAuthenticated())
-
-  useEffect(() => {
-    setIsAuthenticated(authService.isAuthenticated())
-  }, [])
+  const dispatch = useAppDispatch()
+  const isAuthenticated = useAppSelector(selectIsAuthenticated)
 
   const login = (token: string) => {
-    authService.setToken(token)
-    setIsAuthenticated(true)
+    dispatch(setCredentials({ token }))
   }
 
   const logout = () => {
-    authService.removeToken()
-    setIsAuthenticated(false)
+    dispatch(logoutAction())
   }
 
   return (

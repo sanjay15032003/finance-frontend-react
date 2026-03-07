@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
-import { userService } from '../../services/user.service'
-import type { UserProfile } from '../../services/user.service'
+import { useGetProfileQuery, useUpdateProfileMutation } from '../../store/api/userApi'
 import { useToast } from '../../components/Toast'
 import './ProfilePage.css'
 
@@ -10,46 +9,36 @@ export function ProfilePage() {
   const { logout } = useAuth()
   const navigate = useNavigate()
   const { showToast } = useToast()
-  const [profile, setProfile] = useState<UserProfile | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
+  const { data: profile, isLoading: loading, error } = useGetProfileQuery()
+  const [updateProfile, { isLoading: saving }] = useUpdateProfileMutation()
   const [formData, setFormData] = useState({
     name: '',
     mobileNumber: '',
   })
 
   useEffect(() => {
-    loadProfile()
-  }, [])
-
-  const loadProfile = async () => {
-    try {
-      setLoading(true)
-      const data = await userService.getProfile()
-      setProfile(data)
+    if (profile) {
       setFormData({
-        name: data.name,
-        mobileNumber: data.mobileNumber || '',
+        name: profile.name,
+        mobileNumber: profile.mobileNumber || '',
       })
-    } catch (error) {
-      showToast(error instanceof Error ? error.message : 'Failed to load profile', 'error')
-    } finally {
-      setLoading(false)
     }
-  }
+  }, [profile])
+
+  useEffect(() => {
+    if (error) {
+      showToast('Failed to load profile', 'error')
+    }
+  }, [error, showToast])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     try {
-      setSaving(true)
-      const updatedProfile = await userService.updateProfile(formData)
-      setProfile(updatedProfile)
+      await updateProfile(formData).unwrap()
       showToast('Profile updated successfully', 'success')
-    } catch (error) {
-      showToast(error instanceof Error ? error.message : 'Failed to update profile', 'error')
-    } finally {
-      setSaving(false)
+    } catch (error: any) {
+      showToast(error || 'Failed to update profile', 'error')
     }
   }
 

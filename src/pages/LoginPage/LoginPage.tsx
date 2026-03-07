@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '../../components/Toast'
 import { useAuth } from '../../context/AuthContext'
-import { authService } from '../../services/auth.service'
+import { useSignUpMutation, useSignInMutation } from '../../store/api/authApi'
 import './LoginPage.css'
 
 export const LoginPage = () => {
@@ -10,27 +10,27 @@ export const LoginPage = () => {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
   const { showToast } = useToast()
   const { login } = useAuth()
   const navigate = useNavigate()
 
+  const [signUp, { isLoading: isSignUpLoading }] = useSignUpMutation()
+  const [signIn, { isLoading: isSignInLoading }] = useSignInMutation()
+  const loading = isSignUpLoading || isSignInLoading
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
 
     try {
-      const response = isSignUp
-        ? await authService.signUp({ name, email, password })
-        : await authService.signIn({ email, password })
+      const result = isSignUp
+        ? await signUp({ name, email, password }).unwrap()
+        : await signIn({ email, password }).unwrap()
 
-      login(response.data.accessToken)
+      login(result.accessToken)
       showToast(isSignUp ? 'Account created successfully!' : 'Logged in successfully!', 'success')
       navigate('/')
-    } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Something went wrong', 'error')
-    } finally {
-      setLoading(false)
+    } catch (err: any) {
+      showToast(err || 'Something went wrong', 'error')
     }
   }
 

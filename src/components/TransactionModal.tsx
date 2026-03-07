@@ -1,17 +1,16 @@
 import { useState, type FormEvent } from 'react'
 import { useToast } from './Toast'
-import { transactionService, type TransactionType } from '../services/transaction.service'
+import { useCreateTransactionMutation, type TransactionType } from '../store/api/transactionsApi'
 import './TransactionModal.css'
 
 interface TransactionModalProps {
   isOpen: boolean
   onClose: () => void
-  onSuccess: () => void
 }
 
-export function TransactionModal({ isOpen, onClose, onSuccess }: TransactionModalProps) {
+export function TransactionModal({ isOpen, onClose }: TransactionModalProps) {
   const { showToast } = useToast()
-  const [loading, setLoading] = useState(false)
+  const [createTransaction, { isLoading: loading }] = useCreateTransactionMutation()
   const [formData, setFormData] = useState({
     type: 'expense' as TransactionType,
     category: '',
@@ -34,14 +33,13 @@ export function TransactionModal({ isOpen, onClose, onSuccess }: TransactionModa
     }
 
     try {
-      setLoading(true)
-      await transactionService.create({
+      await createTransaction({
         type: formData.type,
         category: formData.category,
         amount: parseFloat(formData.amount),
         description: formData.description || undefined,
         transactionDate: formData.transactionDate,
-      })
+      }).unwrap()
 
       showToast('Transaction added successfully', 'success')
 
@@ -53,12 +51,9 @@ export function TransactionModal({ isOpen, onClose, onSuccess }: TransactionModa
         transactionDate: new Date().toISOString().split('T')[0],
       })
 
-      onSuccess()
       onClose()
-    } catch (error) {
-      showToast(error instanceof Error ? error.message : 'Failed to add transaction', 'error')
-    } finally {
-      setLoading(false)
+    } catch (error: any) {
+      showToast(error || 'Failed to add transaction', 'error')
     }
   }
 
